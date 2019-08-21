@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>About</title>
+
+    <!-- Bootstrap core CSS -->
+<link href="./bootstrap/css/bootstrap.css" rel="stylesheet">
+
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+    </style>
+    <!-- Custom styles for this template -->
+    <link href="./bootstrap/css/cover.css" rel="stylesheet">
+    
+  </head>
+  <body class="text-center">
+    <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
+  <header class="masthead mb-auto">
+    <div class="inner">
+      <h3 class="masthead-brand">Hearthstone Tinder</h3>
+      <nav class="nav nav-masthead justify-content-center">
+        <a class="nav-link active" href="./admin_roles.html">Admin</a>
+        <a class="nav-link active" href="./about_admin.html">About</a>
+        <a class="nav-link active" href="./page_admin.html">Home</a>
+        <a class="nav-link active" id="quit">Quit</a>
+      </nav>
+    </div>
+  </header>
+
+  <main role="main" class="inner cover">
+      <iframe style="display: block; margin: 0 auto;" width="500" height="250" src="https://www.youtube.com/embed/9HbGNwJJ9xs" 
+            frameborder="10" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>RIP youtube moneh</iframe>
+    <table class="table table-hover table-dark">
+        <thead>
+            <tr>
+            <th scope="col">#</th>
+            <th scope="col">Quest Trading</th>
+            <th scope="col">Blacklisting</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+            <th scope="row">Trust Factor</th>
+            <td>Identify more trust worthy trading partners. Players with lower trust level are made to trade first since they have greater likelihood to try to scam others. </td>
+            <td>Every new user starts from zero trust and accumulates trust level from each successful trade</td>
+            </tr>
+            <tr>
+            <th scope="row">Benefits</th>
+            <td>Find trading partners as they queue to get instant results instead of the jargon of forum searching/posting</td>
+            <td>Ban Hammer is served to players who wish to continue scamming on this platform</td>
+            </tr>
+        </tbody>
+    </table>
+  </main>
+</div>
+
+<!--bootstrap jquery and javascript-->
+<script src="./bootstrap/js/jquery.js"></script>
+<script src="./bootstrap/js/bootstrap.js"></script>
+<script>
+  var remote = require('electron').remote;
+  
+  // Quit App
+  document.getElementById('quit').addEventListener('click', ()=>{
+      var window = remote.getCurrentWindow();
+      window.close();
+  })
+</script>  
+</body>
+</html>
