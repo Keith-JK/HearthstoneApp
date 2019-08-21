@@ -2,6 +2,33 @@ const sql = require('mssql');
 const config = require('./config/keys');
 var conn = new sql.ConnectionPool(config.SQLConfig);
 
+conn.connect().then(() => {
+    RetrieveAccountInfo("NotMarkers1#1234", "12345678")
+        .then((TrustFactor) => console.log("Trust Factor: " + TrustFactor))
+        .catch((err) => console.log("Test Failed: \n" + err));
+}).catch(err => console.log(err));
+
+async function RetrieveAccountInfo(battleTag, accountID) {
+    const isPresent_accountID = await CheckUsersTableAccountID(accountID)
+        .catch((err) => console.log(err));
+    if (isPresent_accountID) {
+        // left-side flow
+        const isPresent_BattleTag = await CheckUsersTableBattleTag(battleTag)
+            .catch((err) => console.log(err));
+        if (!isPresent_BattleTag) {
+            await UpdateUserBattleTag(battleTag, accountID)
+                .catch((err) => console.log(err));
+        }
+    } else {
+        // right-side flow
+        AddUserIntoTable(battleTag, accountID)
+            .catch((err) => console.log(err));
+    }
+    const trustFactor = await getTrustFactor(accountID)
+        .catch((err) => console.log(err));
+    return trustFactor;
+}
+
 // Checks if the user's account ID already exists in the users table and returns true or false.
 async function CheckUsersTableAccountID(accountID) {
     var req = new sql.Request(conn);
@@ -17,7 +44,7 @@ async function CheckUsersTableAccountID(accountID) {
                 }
             }).catch(function (err) {
                 conn.close();
-                reject(err);
+                reject("Error in CheckUsersTableAccountID function: \n" + err);
             });
     });
 }
@@ -97,7 +124,7 @@ async function AddUserIntoTable(battleTag, accountID) {
 
 async function getTrustFactor(accountID) {
     var req = new sql.Request(conn);
-    var queryString = "SELECT * FROM users WHERE BattleTag = @queryAccountID;";
+    var queryString = "SELECT * FROM users WHERE AccountID = @queryAccountID;";
     return new Promise((resolve, reject) => {
         req.input('queryAccountID', accountID).query(queryString)
             .then(function (recordset) {
