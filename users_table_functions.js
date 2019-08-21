@@ -3,7 +3,7 @@ const config = require('./config/keys');
 var conn = new sql.ConnectionPool(config.SQLConfig);
 
 conn.connect().then(() => {
-    RetrieveAccountInfo("NewMarkers#1234", "123456789")
+    RetrieveAccountInfo("NewMarker#1234", "12389")
         .then((TrustFactor) => console.log("Trust Factor: " + TrustFactor))
         .catch((err) => console.log("Test Failed: \n" + err));
 }).catch(err => console.log(err));
@@ -21,7 +21,7 @@ async function RetrieveAccountInfo(battleTag, accountID) {
         }
     } else {
         // right-side flow
-        AddUserIntoTable(battleTag, accountID)
+        await AddUserIntoTable(battleTag, accountID)
             .catch((err) => console.log(err));
     }
     const trustFactor = await getTrustFactor(accountID)
@@ -95,31 +95,27 @@ async function UpdateUserBattleTag(newBattleTag, accountID) {
 
 // Adds new user into the users table with trust factor of 0.
 async function AddUserIntoTable(battleTag, accountID) {
-    CheckUsersTableAccountID(accountID).then((isPresent) => {
-        if (!isPresent) {
-            var req = new sql.Request(conn);
-            queryString = "INSERT INTO users(BattleTag, AccountID, TrustFactor) VALUES(\
-                @battleTag, @accountID, 0);";
-            return new Promise((resolve, reject) => {
-                req.input('battleTag', battleTag)
-                    .input('accountID', accountID)
-                    .query(queryString)
-                    .then(function (recordset) {
-                        if (recordset.rowsAffected == 1) {
-                            console.log(recordset);
-                            resolve(recordset);
-                        } else { // not good
-                            console.log(recordset);
-                            reject(recordset);
-                        }
-                    }).catch(function (err) { // some error occured
-                        reject("Error in function AddUserIntoTable:\n" + err);
-                    });
-            })
-        } else {
-            console.log("User already present in table.");
-        }
-    })
+    const isAlreadyInTable = await CheckUsersTableBattleTag(battleTag);
+    if (isAlreadyInTable) {
+        return false;
+    }
+    var req = new sql.Request(conn);
+    queryString = "INSERT INTO users(BattleTag, AccountID, TrustFactor) VALUES(\
+        @battleTag, @accountID, 0);";
+    return new Promise((resolve, reject) => {
+        req.input('battleTag', battleTag)
+            .input('accountID', accountID)
+            .query(queryString)
+            .then(function (recordset) {
+                if (recordset.rowsAffected == 1) {
+                    resolve(recordset);
+                } else { // not good
+                    reject(recordset);
+                }
+            }).catch(function (err) { // some error occured
+                reject("Error in function AddUserIntoTable:\n" + err);
+            });
+    });
 }
 
 async function getTrustFactor(accountID) {
