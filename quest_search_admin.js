@@ -17,26 +17,27 @@ var conn = new sql.ConnectionPool(config)
 
 //add global variables
 var myBattleTag = remote.getGlobal('userBattleTag')
-
+var trustFactor = remote.getGlobal('userTrustFactor')
 console.log(myBattleTag);
+console.log(trustFactor);
 
  
 // ADD to search first thing once enter the page
 conn.connect().then(function () {
 
-    add(myBattleTag);
+    add(myBattleTag, trustFactor);
     
 }).catch(function(err){
     console.log(err);
     conn.close();
 });
 
-async function add(userBattleTag) {
+async function add(userBattleTag, trustFactor) {
     // Step 1: Check if there is a slot available
     // Step 2: Add 1 guy to the queue
     console.log("Step 2: Adding 1 guy to the queue...");
-    await AddToQueue(userBattleTag).then(function (result) {
-        console.log(userBattleTag + "has been added!");
+    await AddToQueue(userBattleTag, trustFactor).then(function (result) {
+        console.log("TEST PASSED:" + userBattleTag + "has been added!");
     }).catch(err => console.log("ERROR AT STEP #2: \n" + err));
 
     conn.close();
@@ -62,22 +63,25 @@ async function isSlotAvailable() {
 }
 
 // Add to queue and wait for match OR add to pre existing row of player
-async function AddToQueue(userBattleTag) {
+async function AddToQueue(userBattleTag, trustFactor) {
     var queryString;
     await isSlotAvailable().then(function (result, err) {
         if (result) {
             queryString = "UPDATE match_table\
                             SET Player2 = @userBattleTag\
+                            SET Player2_Trust = @trustFactor\
                             WHERE Player2 IS NULL;";
             console.log("Found a slot to place myself in!");
         } else {
-            queryString = "INSERT INTO match_table(Player1) VALUES(@userBattleTag);";
+            queryString = "INSERT INTO match_table(Player1, Player1_Trust) VALUES(@userBattleTag, @trustFactor);";
             console.log("Found no slots to place myself in!");
         }
     }).catch(err => console.log(err));
     return new Promise(function (resolve, reject) {
         var req = new sql.Request(conn);
-        req.input('userBattleTag', userBattleTag).query(queryString)
+        req.input('userBattleTag', userBattleTag)
+            .input('trustFactor', trustFactor)
+            .query(queryString)
             .then(function (recordset) {
                 // If 1 row affected, then good.
                 if (recordset.rowsAffected == 1) {
@@ -111,20 +115,20 @@ document.getElementById('cancel_search').addEventListener('click', () => {
     async function remove(userBattleTag){
         await RemoveFromQueue(userBattleTag).then(function (result) {
             if (result) {
-                console.log("User successfully removed from queue");
+                console.log("TEST FAILED: User successfully removed from queue");
                 conn.close();
 
-                // Redirect back to page.html
+                // Redirect back to page_admin.html
                 var window = remote.getCurrentWindow();
                 // opens page.html
                 main.openWindow('page_admin');
                 // this should kill all process
                 window.close();
             } else {
-                console.log("User already removed from queue / Not detected in queue.");
+                console.log("TEST PASSED: User already removed from queue / Not detected in queue.");
                 conn.close();
 
-                // Redirect back to page.html
+                // Redirect back to page_admin.html
                 var window = remote.getCurrentWindow();
                 // opens page.html
                 main.openWindow('page_admin');
@@ -160,7 +164,7 @@ document.getElementById('cancel_search').addEventListener('click', () => {
 
 
 
-//interval testing function
+//fake interval testing function
 function matching(){
     // Connect to configuration
     var conn = new sql.ConnectionPool(config)
@@ -190,7 +194,6 @@ function matching(){
 
                 // Redirect to partner_info_admin.html
                 var window = remote.getCurrentWindow();
-                // opens page.html
                 main.openWindow('partner_info_admin');
                 // this should kill all process
                 window.close();

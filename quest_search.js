@@ -17,9 +17,10 @@ var conn = new sql.ConnectionPool(config)
 
 //add global variables
 var myBattleTag = remote.getGlobal('userBattleTag')
-var myAccountId = remote.getGlobal('userAccountId')
+var trustFactor = remote.getGlobal('userTrustFactor')
 console.log(myBattleTag);
-console.log(myAccountId);
+console.log(trustFactor);
+
  
 // ADD to search first thing once enter the page
 conn.connect().then(function () {
