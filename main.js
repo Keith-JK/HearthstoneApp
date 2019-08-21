@@ -69,10 +69,26 @@ ipc.config.retry= 1500;
 ipc.serve(
     function(){
         ipc.server.on(
-            'app.message',
+            'battletag',
             function(data,socket){
                 // initialise global BattleTag
                 global.userBattleTag = data.message;
+                // broadcast to all client if needed
+                /* ipc.server.emit(
+                    socket,
+                    'app.message',
+                    {
+                        id      : ipc.config.id,
+                        message : 'BattleTag: ' + data.message
+                    }
+                ); */
+            }
+        );
+        ipc.server.on(
+            'trustFactor',
+            function(data,socket){
+                // initialise global BattleTag
+                global.userTrustFactor = data.message;
                 // broadcast to all client if needed
                 /* ipc.server.emit(
                     socket,

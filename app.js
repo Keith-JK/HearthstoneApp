@@ -12,10 +12,12 @@ const sql = require('mssql');
 var BnetStrategy = require('passport-bnet').Strategy;
 
 // credentials 
-const config = require('./config/keys')
+const config = require('./config/keys');
 var BNET_ID = config.Blizzard.clientID;
 var BNET_SECRET = config.Blizzard.clientSecret;
 const SQLkeys = config.SQLConfig;
+
+var conn = new sql.ConnectionPool(config.SQLConfig);
 
 
 passport.serializeUser(function(user, done) {
@@ -71,46 +73,64 @@ app.get('/auth/blizzard/redirect',
 
 app.get('/', function(req, res) {
   if(id !== null && battletag !== null){
-    // start client and send BattleTag to world server
-    const ipc=require('node-ipc');
 
-    ipc.config.id = 'hello';
-    ipc.config.retry = 1000;
+    conn.connect().then(() => {
+        RetrieveAccountInfo("NewMarker#123", "12389")
+            .then((TrustFactor) => {
+                console.log("Trust Factor: " + TrustFactor);
 
-    ipc.connectTo(
-        'world',
-        function(){
-            ipc.of.world.on(
-                'connect',
-                function(){
-                    ipc.log('## connected to world ##', ipc.config.delay);
-                    ipc.of.world.emit(
-                        'app.message',
-                        {
-                            id      : ipc.config.id,
-                            message : battletag
-                        }
-                    );
-                }
-            );
-            // world server crash
-            ipc.of.world.on(
-                'disconnect',
-                function(){
-                    ipc.log('disconnected from world');
-                }
-            );
-            // received message from world of event id 'app.message'
-            ipc.of.world.on(
-                'app.message',
-                function(data){
-                    ipc.log('got a message from world, BattleTag : ', data);
-                }
-            );
-            // when client closes, send event to world
-            console.log(ipc.of.world.destroy);
-        }
-    );
+                // start client and send BattleTag to world server
+                const ipc=require('node-ipc');
+
+                ipc.config.id = 'hello';
+                ipc.config.retry = 1000;
+
+                ipc.connectTo(
+                    'world',
+                    function(){
+                        ipc.of.world.on(
+                            'connect',
+                            function(){
+                                ipc.log('## connected to world ##', ipc.config.delay);
+                                ipc.of.world.emit(
+                                    'battletag',
+                                    {
+                                        id      : ipc.config.id,
+                                        message : battletag
+                                    }
+                                );
+                                ipc.of.world.emit(
+                                    'trustFactor',
+                                    {
+                                        id      : ipc.config.id,
+                                        message : TrustFactor
+                                    }
+                                );
+                            }
+                        );
+                        // world server crash
+                        ipc.of.world.on(
+                            'disconnect',
+                            function(){
+                                ipc.log('disconnected from world');
+                            }
+                        );
+                        // received message from world of event id 'app.message'
+                        ipc.of.world.on(
+                            'app.message',
+                            function(data){
+                                ipc.log('got a message from world, BattleTag : ', data);
+                            }
+                        );
+                        // when client closes, send event to world
+                        console.log(ipc.of.world.destroy);
+                    }
+                );
+            })
+            .catch((err) => console.log("Test Failed: \n" + err));
+    }).catch(err => console.log(err));
+
+    
     // run html views
     res.sendFile(path.join(__dirname + '/bootstrap/redirect.html'));
     
@@ -131,69 +151,134 @@ var server = app.listen(3000, function() {
   console.log('Listening on port %d', server.address().port);
 });
 
+// SQL functions
+async function RetrieveAccountInfo(battleTag, accountID) {
+    const isPresent_accountID = await CheckUsersTableAccountID(accountID)
+        .catch((err) => console.log(err));
+    if (isPresent_accountID) {
+        console.log("User ID present in database");
+        // left-side flow
+        const isPresent_BattleTag = await CheckUsersTableBattleTag(battleTag)
+            .catch((err) => console.log(err));
+        if (!isPresent_BattleTag) {
+            console.log("Updating Battletag");
+            await UpdateUserBattleTag(battleTag, accountID)
+                .catch((err) => console.log(err));
+        }
+    } else {
+        console.log("Adding new user");
+        // right-side flow
+        await AddUserIntoTable(battleTag, accountID)
+            .catch((err) => console.log(err));
+    }
+    console.log("Getting trust factor");
+    const trustFactor = await getTrustFactor(accountID)
+        .catch((err) => console.log(err));
+    conn.close();
+    return trustFactor;
+}
 
-function createNewUser(){
-  // SQL add 
-  var addUserTag = battletag;
-  var trust_level = 0;
+// Checks if the user's account ID already exists in the users table and returns true or false.
+async function CheckUsersTableAccountID(accountID) {
+    var req = new sql.Request(conn);
+    var queryAccountID = accountID;
+    var queryString = "SELECT * FROM users WHERE AccountID = @queryAccountID;";
+    return new Promise((resolve, reject) => {
+        req.input('queryAccountID', queryAccountID).query(queryString)
+            .then(function (recordset) {
+                if (recordset.rowsAffected == 0) {
+                    resolve(false);
+                } else {
+                    resolve(true);
+                }
+            }).catch(function (err) {
+                conn.close();
+                reject("Error in CheckUsersTableAccountID function: \n" + err);
+            });
+    });
+}
 
-  // Connect to configuration
-  var conn = new sql.ConnectionPool(SQLkeys);
-  
-  // connection
-  conn.connect().then(function () {
+// Checks if the user's BattleTag already exists in the users table and returns true or false.
+async function CheckUsersTableBattleTag(battleTag) {
+    var req = new sql.Request(conn);
+    var queryBattleTag = battleTag;
+    var queryString = "SELECT * FROM users WHERE BattleTag = @queryBattleTag;";
+    return new Promise((resolve, reject) => {
+        req.input('queryBattleTag', queryBattleTag).query(queryString)
+            .then(function (recordset) {
+                if (recordset.rowsAffected == 0) {
+                    resolve(false);
+                } else {
+                    resolve(true);
+                }
+            }).catch(function (err) {
+                conn.close();
+                reject(err);
+            });
+    });
+}
 
-      add_to_users(addUserTag, addAccountID);
-      
-  }).catch(function(err){
-      console.log(err);
-      conn.close();
-      // problem connecting
-      console.log("err connecting");
-      
-  });
+// Update the user's BattleTag (if the user changed their BattleTag), and should return true.
+async function UpdateUserBattleTag(newBattleTag, accountID) {
+    var req = new sql.Request(conn);
+    var queryString = "UPDATE users\
+                            SET BattleTag = @queryBattleTag\
+                            WHERE AccountID = @queryAccountID;";
+    return new Promise((resolve, reject) => {
+        req.input('queryBattleTag', newBattleTag)
+            .input('queryAccountID', accountID)
+            .query(queryString)
+            .then(function (recordset) {
+                // If 1 row affected, then good.
+                if (recordset.rowsAffected == 1) {
+                    resolve(recordset);
+                } else { // not good.
+                    reject(recordset);
+                }
+            }).catch(function (err) {
+                reject(err);
+            });
+    });
+}
 
-  async function add_to_users(userID, AccountID) {
-      await AddBattletagToBlacklist(userID, AccountID).then(function (result) {
-          console.log("Function: Adding it to the blacklist.")
-          console.log("Successfully added.");
-          conn.close();
-          
-      }).catch((error) => {
-          conn.close();
-          console.log("ERROR:\n" + error + "\n already in database");
-          
-      });
-  }
 
-  async function AddBattletagToBlacklist(userBattleTag, userAccountID) {
-      // Add to blacklist.
-      var req = new sql.Request(conn);
-      queryString = "INSERT INTO blacklist (BattleTag, DateAdded)\
-          VALUES (@queryBattleTag, CURRENT_TIMESTAMP);";
-      // Unknown Account ID
-      if (userAccountID != "NULL") { 
-          var queryString = "INSERT INTO blacklist (BattleTag, AccountID, DateAdded)\
-          VALUES (@queryBattleTag, @queryAccountID, CURRENT_TIMESTAMP);";
-          var queryAccountID = userAccountID + "";
-          req.input('queryAccountID', queryAccountID);
-      }
-      req.input('queryBattleTag', userBattleTag);
-      return new Promise((resolve, reject) => {
-          req.input('queryBattleTag', userBattleTag)
-              .query(queryString)
-              .then(function (recordset) {
-                  // If 1 row affected, then good.
-                  if (recordset.rowsAffected == 1) {
-                      console.log(recordset);
-                      resolve(recordset);
-                  } else { // not good
-                      console.log(recordset);
-                      reject(recordset);
-                  }
-              }).catch(function (err) { // some error occured
-                  reject("Error in function AddBattletagToBlacklist:\n" + err);
-              });
-      });
-  }
+// Adds new user into the users table with trust factor of 0.
+async function AddUserIntoTable(battleTag, accountID) {
+    const isAlreadyInTable = await CheckUsersTableBattleTag(battleTag);
+    if (isAlreadyInTable) {
+        return false;
+    }
+    var req = new sql.Request(conn);
+    queryString = "INSERT INTO users(BattleTag, AccountID, TrustFactor) VALUES(\
+        @battleTag, @accountID, 0);";
+    return new Promise((resolve, reject) => {
+        req.input('battleTag', battleTag)
+            .input('accountID', accountID)
+            .query(queryString)
+            .then(function (recordset) {
+                if (recordset.rowsAffected == 1) {
+                    resolve(recordset);
+                } else { // not good
+                    reject(recordset);
+                }
+            }).catch(function (err) { // some error occured
+                reject("Error in function AddUserIntoTable:\n" + err);
+            });
+    });
+}
+
+async function getTrustFactor(accountID) {
+    var req = new sql.Request(conn);
+    var queryString = "SELECT * FROM users WHERE AccountID = @queryAccountID;";
+    return new Promise((resolve, reject) => {
+        req.input('queryAccountID', accountID).query(queryString)
+            .then(function (recordset) {
+                if (recordset.rowsAffected[0] === 1) {
+                    const trustFactor = ((recordset.recordset)[0]).TrustFactor;
+                    resolve(trustFactor);
+                } else {
+                    reject("Error in getTrustFactor function: \n" + recordset);
+                }
+            }).catch((err) => console.log(err));
+    });
 }
