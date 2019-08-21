@@ -24,18 +24,18 @@ console.log(myAccountId);
 // ADD to search first thing once enter the page
 conn.connect().then(function () {
 
-    add(myBattleTag);
+    add(myBattleTag, trustFactor);
     
 }).catch(function(err){
     console.log(err);
     conn.close();
 });
 
-async function add(userBattleTag) {
+async function add(userBattleTag, trustFactor) {
     // Step 1: Check if there is a slot available
     // Step 2: Add 1 guy to the queue
     console.log("Step 2: Adding 1 guy to the queue...");
-    await AddToQueue(userBattleTag).then(function (result) {
+    await AddToQueue(userBattleTag, trustFactor).then(function (result) {
         console.log("TEST PASSED:" + userBattleTag + "has been added!");
     }).catch(err => console.log("ERROR AT STEP #2: \n" + err));
 
@@ -62,22 +62,25 @@ async function isSlotAvailable() {
 }
 
 // Add to queue and wait for match OR add to pre existing row of player
-async function AddToQueue(userBattleTag) {
+async function AddToQueue(userBattleTag, trustFactor) {
     var queryString;
     await isSlotAvailable().then(function (result, err) {
         if (result) {
             queryString = "UPDATE match_table\
                             SET Player2 = @userBattleTag\
+                            SET Player2_Trust = @trustFactor\
                             WHERE Player2 IS NULL;";
             console.log("Found a slot to place myself in!");
         } else {
-            queryString = "INSERT INTO match_table(Player1) VALUES(@userBattleTag);";
+            queryString = "INSERT INTO match_table(Player1, Player1_Trust) VALUES(@userBattleTag, @trustFactor);";
             console.log("Found no slots to place myself in!");
         }
     }).catch(err => console.log(err));
     return new Promise(function (resolve, reject) {
         var req = new sql.Request(conn);
-        req.input('userBattleTag', userBattleTag).query(queryString)
+        req.input('userBattleTag', userBattleTag)
+            .input('trustFactor', trustFactor)
+            .query(queryString)
             .then(function (recordset) {
                 // If 1 row affected, then good.
                 if (recordset.rowsAffected == 1) {

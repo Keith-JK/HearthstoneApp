@@ -6,6 +6,20 @@ conn.connect().then(() => {
     RetrieveAccountInfo("NewMarker#123", "12389")
         .then((TrustFactor) => console.log("Trust Factor: " + TrustFactor))
         .catch((err) => console.log("Test Failed: \n" + err));
+
+    // Run the delete function by itself. It messes up the RetrieveAccountInfo function if you use .then
+    /*
+    DeleteUserFromTable("12389")
+        .then((isSuccessful) => {
+            if (isSuccessful) {
+                console.log("Delete Successful.");
+            } else {
+                console.log("Delete Unsuccessful.");
+            }
+        })
+        .catch ((err) => console.log("Test Failed: \n" + err));
+        */
+   
 }).catch(err => console.log(err));
 
 async function RetrieveAccountInfo(battleTag, accountID) {
@@ -137,4 +151,24 @@ async function getTrustFactor(accountID) {
                 }
             }).catch((err) => console.log(err));
     });
+}
+
+async function DeleteUserFromTable(accountID) {
+    const isAlreadyInTable = await CheckUsersTableAccountID(accountID);
+    if (!isAlreadyInTable) {
+        console.log("User not found.");
+    } else {
+        var req = new sql.Request(conn);
+        var queryString = "DELETE FROM users WHERE AccountID = @queryAccountID;";
+        return new Promise((resolve, reject) => {
+            req.input('queryAccountID', accountID).query(queryString)
+                .then(function (recordset) {
+                    if (recordset.rowsAffected[0] === 1) {
+                        resolve(true);
+                    } else {
+                        reject("Error in DeleteUserFromTable function: \n" + recordset);
+                    }
+                }).catch((err) => console.log(err));
+        });
+    }
 }
