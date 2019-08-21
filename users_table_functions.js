@@ -3,7 +3,7 @@ const config = require('./config/keys');
 var conn = new sql.ConnectionPool(config.SQLConfig);
 
 conn.connect().then(() => {
-    RetrieveAccountInfo("NotMarkers1#1234", "12345678")
+    RetrieveAccountInfo("NewMarkers#1234", "123456789")
         .then((TrustFactor) => console.log("Trust Factor: " + TrustFactor))
         .catch((err) => console.log("Test Failed: \n" + err));
 }).catch(err => console.log(err));
@@ -128,11 +128,11 @@ async function getTrustFactor(accountID) {
     return new Promise((resolve, reject) => {
         req.input('queryAccountID', accountID).query(queryString)
             .then(function (recordset) {
-                if (recordset.rowsAffected == 0) {
-                    reject("Error in getTrustFactor function: \n" + recordset);
-                } else {
+                if (recordset.rowsAffected[0] === 1) {
                     const trustFactor = ((recordset.recordset)[0]).TrustFactor;
                     resolve(trustFactor);
+                } else {
+                    reject("Error in getTrustFactor function: \n" + recordset);
                 }
             }).catch((err) => console.log(err));
     });
