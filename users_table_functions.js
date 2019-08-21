@@ -3,7 +3,7 @@ const config = require('./config/keys');
 var conn = new sql.ConnectionPool(config.SQLConfig);
 
 conn.connect().then(() => {
-    RetrieveAccountInfo("NewMarker#1234", "12389")
+    RetrieveAccountInfo("NewMarker#123", "12389")
         .then((TrustFactor) => console.log("Trust Factor: " + TrustFactor))
         .catch((err) => console.log("Test Failed: \n" + err));
 
@@ -26,20 +26,25 @@ async function RetrieveAccountInfo(battleTag, accountID) {
     const isPresent_accountID = await CheckUsersTableAccountID(accountID)
         .catch((err) => console.log(err));
     if (isPresent_accountID) {
+        console.log("User ID present in database");
         // left-side flow
         const isPresent_BattleTag = await CheckUsersTableBattleTag(battleTag)
             .catch((err) => console.log(err));
         if (!isPresent_BattleTag) {
+            console.log("Updating Battletag");
             await UpdateUserBattleTag(battleTag, accountID)
                 .catch((err) => console.log(err));
         }
     } else {
+        console.log("Adding new user");
         // right-side flow
         await AddUserIntoTable(battleTag, accountID)
             .catch((err) => console.log(err));
     }
+    console.log("Getting trust factor");
     const trustFactor = await getTrustFactor(accountID)
         .catch((err) => console.log(err));
+    conn.close();
     return trustFactor;
 }
 
