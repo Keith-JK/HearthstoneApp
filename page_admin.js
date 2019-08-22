@@ -82,7 +82,7 @@ document.getElementById('quest_trade').addEventListener('click', () =>{
 
                                 var window = remote.getCurrentWindow();
                                 // open the html file quest_search.html
-                                main.openWindow('quest_search');
+                                main.openWindow('quest_search_admin');
                                 window.close();
                                 
                             }else{ 
