@@ -21,17 +21,100 @@ const OnlineBlacklisturl = "https://www.hearthpwn.com/forums/hearthstone-general
 
 // QUEST TRADING
 document.getElementById('quest_trade').addEventListener('click', () =>{
-    var window = remote.getCurrentWindow();
-    // open the html file quest_search.html
-    main.openWindow('quest_search');
-    window.close();
+    // get user battletag
+    var search_battletag = remote.getGlobal('userBattleTag');
+
+    // initialise empty body
+    var body = '';
+
+    // use strings to signify checks
+    var check_progress = "empty";
+
+    // checks online blacklist first
+    request(OnlineBlacklisturl)
+        .on('data', chunk => {
+            if(chunk.includes('<thead>')){
+                body += chunk;
+            };
+        })
+        .on('end', () => {
+            if(body !== ''){
+                if(search_battletag == 'Rollewurst#2144'){
+                    // this guy special snowflake
+                    check_progress = "unconfirmed, checking SQL";
+                    console.log('special snowflake');
+                }else if(body.includes(search_battletag)){
+                    // guy in blacklist
+                    check_progress = "confirmed blacklisted";
+                    document.getElementById('quest-denied').innerHTML = "User is blacklisted, and is not allowed to trade";
+                    console.log(check_progress);
+                }else{
+                    // guy not in blacklist
+                    check_progress = "unconfirmed, checking SQL";
+                    console.log(check_progress);
+                }
+            }else{
+                // some problem happened and body is empty
+                check_progress = "unconfirmed, checking SQL";
+                console.log('error, retrieving data from online blacklist: empty body');
+            }
+
+            // SQL query only if not in online blacklist
+            if(check_progress == "unconfirmed, checking SQL"){
+                console.log("checking SQL");
+                
+                //SQL query to blacklist table to test
+
+                // importing keys, create new connection
+                var conn = new sql.ConnectionPool(keys.SQLConfig);
+
+                conn.connect().then(function (){
+                    
+                    var req = new sql.Request(conn);
+                    queryBattleTag = search_battletag;
+                    var queryString = "SELECT * FROM blacklist WHERE BattleTag = @queryBattleTag;";
+                    
+                    req.input('queryBattleTag', queryBattleTag).query(queryString)
+                        .then(function (recordset) {
+                            if(recordset.rowsAffected == 0) { 
+                                // not inside blacklist
+                                console.log("not in both blacklist");
+
+                                var window = remote.getCurrentWindow();
+                                // open the html file quest_search.html
+                                main.openWindow('quest_search');
+                                window.close();
+                                
+                            }else{ 
+                                // inside blacklist
+                               document.getElementById('quest-denied').innerHTML = "User is blacklisted, and is not allowed to trade";
+                                console.log("BattleTag is blacklisted in database");
+                            }
+                            conn.close();
+                        }).catch(function (err) {
+                            // failure to query
+                            console.log(err);
+                            conn.close();
+                        });
+                }).catch(function(err){
+                    // failure to connect
+                    console.log(err);
+                });
+            }
+            // end of SQL if needed
+        })
+        .on('error', (err) => {
+            console.log('error connecting to online blacklist: empty body');
+            console.log(err);
+        });
+    
 });
 
 // BLACKLIST SEARCH
 document.getElementById('submitSearch').addEventListener('click', () => {
     
     // search_battletag is battletag we need to search for
-    const search_battletag = document.getElementById('blacklist_search').value;
+    var search_battletag = document.getElementById('blacklist_search').value;
     console.log(search_battletag);
 
     // checks if empty or weird text(SQL inject)
@@ -87,8 +170,6 @@ document.getElementById('submitSearch').addEventListener('click', () => {
                 console.log("checking SQL");
                 
                 //SQL query to blacklist table to test
-                const sql = require('mssql');
-                const keys = require('./config/keys');
 
                 // importing keys
                 var conn = new sql.ConnectionPool(keys.SQLConfig);
