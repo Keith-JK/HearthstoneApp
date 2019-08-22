@@ -121,6 +121,10 @@ app.on('window-all-closed', () => {
     }
 });
 
+ipcMain.on('increaseTrust', (event,args) =>{
+    global.userTrustFactor += 1;
+});
+
 // exporting create window module
 exports.openWindow = (filename) => {
     let win = new BrowserWindow({

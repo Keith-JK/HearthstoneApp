@@ -3,6 +3,7 @@ const electron = require('electron')
 const remote = electron.remote
 const main = remote.require('./main.js')
 const path = require('path')
+const ipcRenderer = electron.ipcRenderer;
 
 // connecting to database 
 const sql = require('mssql');
@@ -19,12 +20,19 @@ document.getElementById('quit').addEventListener('click', ()=>{
 
 //add global variables locally
 var myBattleTag = remote.getGlobal('userBattleTag')
-
+var myTrustFactor = remote.getGlobal('userTrustFactor')
 console.log(myBattleTag);
+console.log(myTrustFactor);
+// increase trust
+ipcRenderer.send('increaseTrust', 'null');
+myTrustFactor += 1;
+console.log(myTrustFactor);
 
 
 // LOAD PARTNER INFO
 getPartnerInfo();
+// INCREASE TRUST LEVEL
+increaseTrustLevel();
 
 function getPartnerInfo(){
 
@@ -55,6 +63,31 @@ function getPartnerInfo(){
                 document.getElementById('partner_1').innerHTML = recordset.recordset.toTable().rows[0][2];
                 document.getElementById('partner_1_TF').innerHTML = recordset.recordset.toTable.rows[0][3];
             }
+            conn.close()
+        }).catch(function(err){
+            console.log(err)
+            conn.close()
+        });
+
+    }).catch(function(err){
+        console.log(err)
+    });
+}
+
+function increaseTrustLevel(){
+    var conn = new sql.ConnectionPool(config)
+
+    // Increase Trust level 
+    conn.connect().then(function(){
+        // sql query
+        var queryString = "UPDATE users\
+                            SET TrustFactor = @newTrustFactor\
+                            WHERE BattleTag = @BattleTag;";
+        var req = new sql.Request(conn);
+        req.input('BattleTag', myBattleTag);
+        req.input('newTrustFactor', myTrustFactor);
+        req.query(queryString).then(function(recordset){
+            console.log(recordset);
             conn.close()
         }).catch(function(err){
             console.log(err)

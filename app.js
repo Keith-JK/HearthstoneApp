@@ -75,7 +75,7 @@ app.get('/', function(req, res) {
   if(id !== null && battletag !== null){
 
     conn.connect().then(() => {
-        RetrieveAccountInfo("NewMarker#123", "12389")
+        RetrieveAccountInfo(battletag, id)
             .then((TrustFactor) => {
                 console.log("Trust Factor: " + TrustFactor);
 
@@ -92,6 +92,7 @@ app.get('/', function(req, res) {
                             'connect',
                             function(){
                                 ipc.log('## connected to world ##', ipc.config.delay);
+                                // sending message to world
                                 ipc.of.world.emit(
                                     'battletag',
                                     {
