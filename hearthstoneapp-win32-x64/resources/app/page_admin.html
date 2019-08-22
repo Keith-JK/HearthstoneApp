@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Admin Home</title>
+
+    <!-- Bootstrap core CSS -->
+<link href="./bootstrap/css/bootstrap.css" rel="stylesheet">
+
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+    </style>
+    <!-- Custom styles for this template -->
+    <link href="./bootstrap/css/cover.css" rel="stylesheet">
+    
+  </head>
+  <body class="text-center">
+    <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
+  <header class="masthead mb-auto">
+    <div class="inner">
+      <h3 class="masthead-brand">Hearthstone Tinder</h3>
+      <nav class="nav nav-masthead justify-content-center">
+        <a class="nav-link active" href="./admin_roles.html">Admin</a>
+        <a class="nav-link active" href="./about_admin.html">About</a>
+        <a class="nav-link active" href="./page_admin.html">Home</a>
+        <a class="nav-link active" id="quit">Quit</a>
+      </nav>
+    </div>
+  </header>
+
+  <main role="main" class="inner cover">
+    <p id="quest-denied" class="lead">Click to quest trade OR cross check against our list of blacklisted battletags</p>
+    <p class="nav justify-content-center">
+        <button type="button" id="quest_trade" class="btn btn-lg btn-secondary">Quest Trading</button>
+    </p>
+  </main>
+
+  <footer class="mastfoot mt-auto">
+    <div class="inner">
+      <!--Blacklist search-->
+      <p class="lead" id="blacklist_search_response"><strong>Blacklist Search</strong></p>
+      <div class="input-group mb-3">
+        <input type="text" id="blacklist_search" class="form-control" placeholder="Full BattleTag" aria-label="Recipient's username" aria-describedby="button-addon2">
+        <div class="input-group-append">
+          <button class="btn btn-outline-secondary" type="button" id="submitSearch">Search</button>
+        </div>
+      </div>
+    <p>Connection based request might be slow, so please be patient</p>
+  </div>
+  </footer>
+  <script src="./page_admin.js"></script>
+</div>
+
+</body>
+</html>

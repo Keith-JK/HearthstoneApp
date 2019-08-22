@@ -1,0 +1,76 @@
+.admin-box {
+    height: 100%;
+	background-color: white;
+    max-width: 400px;
+	margin: 0 auto;
+	position: relative;
+	top: 60px;
+	padding-bottom: 30px;
+	border-radius: 5px;
+	box-shadow: 0 5px 50px rgba(0,0,0,0.4);
+    text-align: center;
+    
+}
+
+.admin-box .box-header {
+	background-color: #665851;
+	margin-top: 0;
+    border-radius: 5px 5px 0 0;
+    color: white;
+}
+
+
+.admin-box input {
+	margin-bottom: 20px;
+	padding: 10px;
+	border: 1.5px solid #ccc;
+	border-radius: 3px;
+	font-size: .9em;
+	color: #888;
+}
+
+.admin-box input:focus {
+	outline: none;
+	border-color: red;
+    transition: 0.7s;
+    opacity: 0.5;
+    color: #665851;
+
+}
+
+.admin-box button {
+	margin-top: 0px;
+	border: 0;
+	border-radius: 2px;
+	color: white;
+	padding: 5px 10px 5px 10px;
+	text-transform: uppercase;
+	font-weight: 400;
+	font-size: 0.7em;
+	letter-spacing: 1px;
+	background-color: #665851;
+	cursor:pointer;
+	outline: none;
+}
+
+.admin-box button:hover {
+    background: red;
+	opacity: 0.7;
+    transition: 0.7s;
+  
+}
+
+.selected {
+	color: #665851!important;
+    transition: 0.7s;
+}
+
+p {
+	color: #888;
+	font-weight: 200;
+	letter-spacing: 0.5px;
+	font-size: medium;
+	text-align: center;
+	margin: auto;
+	position: relative;
+}

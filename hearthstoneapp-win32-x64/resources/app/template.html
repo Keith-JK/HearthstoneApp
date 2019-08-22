@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Bootstrap</title>
+
+    <!-- Bootstrap core CSS -->
+<link href="./bootstrap/css/bootstrap.css" rel="stylesheet">
+
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+    </style>
+    <!-- Custom styles for this template -->
+    <link href="./bootstrap/css/cover.css" rel="stylesheet">
+    
+  </head>
+  <body class="text-center">
+    <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
+  <header class="masthead mb-auto">
+    <div class="inner">
+      <h3 class="masthead-brand">Hearthstone Tinder</h3>
+      <nav class="nav nav-masthead justify-content-center">
+        <a class="nav-link active" href="./about.html">About</a>
+        <a class="nav-link active" href="./page.html">Home</a>
+      </nav>
+    </div>
+  </header>
+
+  <main role="main" class="inner cover">
+    <h1 class="cover-heading">Create User Profile and Enter</h1>
+    <p class="lead">If this is not your first time, we'll retrieve your profile from our database. It might take a moment</p>
+    <p class="lead">
+      <a id="startup" href="#" class="btn btn-lg btn-secondary">Enter</a>
+    </p>
+    <div class="spinner-border text-primary" role="status">
+       <span class="sr-only">Loading...</span>
+    </div>
+  </main>
+
+  <footer class="mastfoot mt-auto">
+    <div class="inner">
+      <button type="button" id="test">test</button>
+      <p id="text">some text</p>
+      <a href="/auth/bnet">Login with Bnet</a>
+      <p>Connection based request might be slow, so please be patient</p>
+    </div>
+  </footer>
+</div>
+
+<!--bootstrap jquery and javascript-->
+<script src="./bootstrap/js/jquery.js"></script>
+<script src="./bootstrap/js/bootstrap.js"></script>
+
+<script src="./test.js">
+  
+</script>
+</body>
+</html>

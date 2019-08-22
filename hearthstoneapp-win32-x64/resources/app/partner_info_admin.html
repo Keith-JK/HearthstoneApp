@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Trade Information</title>
+
+    <!-- Bootstrap core CSS -->
+<link href="./bootstrap/css/bootstrap.css" rel="stylesheet">
+
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+    </style>
+    <!-- Custom styles for this template -->
+    <link href="./bootstrap/css/cover.css" rel="stylesheet">
+    
+  </head>
+  <body class="text-center">
+    <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
+  <header class="masthead mb-auto">
+    <div class="inner">
+      <h3 class="masthead-brand">Hearthstone Tinder</h3>
+      <nav class="nav nav-masthead justify-content-center">
+        <a class="nav-link active" href="./admin_roles.html">Admin</a>
+        <a class="nav-link active" href="./about_admin.html">About</a>
+        <a class="nav-link active" href="./page_admin.html">Home</a>
+        <a class="nav-link active" id="quit">Quit</a>
+      </nav>
+    </div>
+  </header>
+
+  <main role="main" class="inner cover">
+    <table class="table table-hover table-dark">
+        <thead>
+            <tr>
+            <th scope="col">Trade Order</th>
+            <th scope="col">Battle ID</th>
+            <th scope="col">Trust Level</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+            <th scope="row">1st:</th>
+            <td id="partner_1"></td>
+            <td id="partner_1_TF"></td>
+            </tr>
+            <tr>
+            <th scope="row">2nd:</th>
+            <td id="partner_2"></td>
+            <td id="partner_2_TF"></td>
+            </tr>
+            <tr>
+            <th id="can-close" scope="row" colspan="3">Do not redirect nor exit app until told to do so</th>
+            </tr>
+        </tbody>
+    </table>
+  </main>
+
+  <footer class="mastfoot mt-auto">
+    
+    <div class="inner">
+      <p>Connection based request might be slow, so please be patient</p>
+    </div>
+  </footer>
+</div>
+
+<script src="./partner_info.js">
+  
+</script>
+</body>
+</html>

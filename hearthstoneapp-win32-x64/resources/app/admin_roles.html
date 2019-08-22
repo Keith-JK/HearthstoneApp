@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="./admin_roles.css" type="text/css">
+    <title>Admin Roles</title>
+
+    <!-- Bootstrap core CSS -->
+<link href="./bootstrap/css/bootstrap.css" rel="stylesheet">
+
+
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+    </style>
+    <!-- Custom styles for this template -->
+    <link href="./bootstrap/css/cover.css" rel="stylesheet">
+    
+  </head>
+  <body class="text-center">
+    <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
+  <header class="masthead mb-auto">
+    <div class="inner">
+      <h3 class="masthead-brand">Hearthstone Tinder</h3>
+      <nav class="nav nav-masthead justify-content-center">
+        <a class="nav-link active" href="./admin_roles.html">Admin</a>
+        <a class="nav-link active" href="./about_admin.html">About</a>
+        <a class="nav-link active" href="./page_admin.html">Home</a>
+        <a class="nav-link active" id="quit">Quit</a>
+      </nav>
+    </div>
+  </header>
+
+  <main role="main" class="inner cover">
+        <div class="admin-box cover-heading">
+            <div class="box-header cover-heading">
+                <h2>Modify Blacklist Data</h2>
+            </div>
+            <br>
+            <input type="text" id="input-tag" name="input-tag" placeholder="BattleTag to Add/Delete">
+            <br/>
+            <!--Submission button, catch in js file-->
+            <button type="button" id="add-blacklist">Add</button>
+            <br/>
+            <br>
+            <button type="button" id="delete-blacklist">Delete</button>
+            <br>
+            <br>
+            <p id="add/delete response"></p>
+        </div>
+  </main>
+
+  <footer class="mastfoot mt-auto">
+    <div class="inner">
+      <p>Connection based request might be slow, so please be patient</p>
+    </div>
+  </footer>
+  <script src="./admin_roles.js"></script>
+</div>
+
+</body>
+</html>
