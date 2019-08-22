@@ -17,31 +17,31 @@ var conn = new sql.ConnectionPool(config)
 
 //add global variables
 var myBattleTag = remote.getGlobal('userBattleTag')
-var trustFactor = remote.getGlobal('userTrustFactor')
+var mytrustFactor = remote.getGlobal('userTrustFactor')
 console.log(myBattleTag);
-console.log(trustFactor);
+console.log(mytrustFactor);
 
  
 // ADD to search first thing once enter the page
 conn.connect().then(function () {
 
-    add(myBattleTag, trustFactor);
+    add(myBattleTag, mytrustFactor);
     
 }).catch(function(err){
     console.log(err);
     conn.close();
 });
 
-async function add(userBattleTag, trustFactor) {
+async function add(userBattleTag, usertrustFactor) {
     // Step 1: Check if there is a slot available
     // Step 2: Add 1 guy to the queue
     console.log("Step 2: Adding 1 guy to the queue...");
-    await AddToQueue(userBattleTag, trustFactor).then(function (result) {
+    await AddToQueue(userBattleTag, usertrustFactor).then(function (result) {
         console.log("TEST PASSED:" + userBattleTag + "has been added!");
-    }).catch(err => console.log("ERROR AT STEP #2: \n" + err));
+    }).catch((err) => console.log("ERROR AT line 41: \n" + err));
 
     conn.close();
-}
+};
 
 // check if 1 player in queue that is not matched with another 
 async function isSlotAvailable() {
@@ -60,17 +60,17 @@ async function isSlotAvailable() {
                 reject(err);
             });
     });
-}
+};
 
 // Add to queue and wait for match OR add to pre existing row of player
-async function AddToQueue(userBattleTag, trustFactor) {
+async function AddToQueue(userBattleTag, usertrustFactor) {
     var queryString;
     await isSlotAvailable().then(function (result, err) {
         if (result) {
             queryString = "UPDATE match_table\
                             SET Player2 = @userBattleTag\
-                            SET Player2_Trust = @trustFactor\
-                            WHERE Player2 IS NULL;";
+                            , Player2_Trust = @trustFactor\
+                            WHERE Player2 IS null;";
             console.log("Found a slot to place myself in!");
         } else {
             queryString = "INSERT INTO match_table(Player1, Player1_Trust) VALUES(@userBattleTag, @trustFactor);";
@@ -79,8 +79,8 @@ async function AddToQueue(userBattleTag, trustFactor) {
     }).catch(err => console.log(err));
     return new Promise(function (resolve, reject) {
         var req = new sql.Request(conn);
-        req.input('userBattleTag', userBattleTag)
-            .input('trustFactor', trustFactor)
+        req.input('userBattleTag', userBattleTag);
+        req.input('trustFactor', usertrustFactor)
             .query(queryString)
             .then(function (recordset) {
                 // If 1 row affected, then good.
@@ -93,7 +93,7 @@ async function AddToQueue(userBattleTag, trustFactor) {
                 reject(err);
             });
     });
-}
+};
 
 
 // CANCELLING SEARCH

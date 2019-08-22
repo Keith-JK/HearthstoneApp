@@ -26,7 +26,7 @@ console.log(myTrustFactor);
 // increase trust
 ipcRenderer.send('increaseTrust', 'null');
 myTrustFactor += 1;
-console.log(myTrustFactor);
+console.log("New globalised user trust: " + remote.getGlobal('userTrustFactor'));
 
 
 // LOAD PARTNER INFO
@@ -47,7 +47,7 @@ function getPartnerInfo(){
         var req = new sql.Request(conn);
         req.input('userBattleTag', myBattleTag);
         req.query(queryString).then(function(recordset){
-            console.log(recordset);
+            // console.log(recordset);
             var TF1 = recordset.recordset.toTable().rows[0][1];
             var TF2 = recordset.recordset.toTable().rows[0][3];
             // player2 has higher trust than player1 == partner1 is player1
@@ -55,13 +55,13 @@ function getPartnerInfo(){
                 document.getElementById('partner_1').innerHTML = recordset.recordset.toTable().rows[0][0];
                 document.getElementById('partner_1_TF').innerHTML = recordset.recordset.toTable().rows[0][1];
                 document.getElementById('partner_2').innerHTML = recordset.recordset.toTable().rows[0][2];
-                document.getElementById('partner_2_TF').innerHTML = recordset.recordset.toTable.rows[0][3];
+                document.getElementById('partner_2_TF').innerHTML = recordset.recordset.toTable().rows[0][3];
             }else{
             // player1 has higher trust than player2 == partner1 is player2
                 document.getElementById('partner_2').innerHTML = recordset.recordset.toTable().rows[0][0];
                 document.getElementById('partner_2_TF').innerHTML = recordset.recordset.toTable().rows[0][1];
                 document.getElementById('partner_1').innerHTML = recordset.recordset.toTable().rows[0][2];
-                document.getElementById('partner_1_TF').innerHTML = recordset.recordset.toTable.rows[0][3];
+                document.getElementById('partner_1_TF').innerHTML = recordset.recordset.toTable().rows[0][3];
             }
             conn.close()
         }).catch(function(err){
@@ -87,7 +87,7 @@ function increaseTrustLevel(){
         req.input('BattleTag', myBattleTag);
         req.input('newTrustFactor', myTrustFactor);
         req.query(queryString).then(function(recordset){
-            console.log(recordset);
+            // console.log(recordset);
             conn.close()
         }).catch(function(err){
             console.log(err)

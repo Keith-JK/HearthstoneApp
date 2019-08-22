@@ -24,49 +24,50 @@ document.getElementById('startup').addEventListener('click', ()=>{
 
     // authentication process skipped == force close
     if(myBattleTag == null){
-        var window = remote.getCurrentWindow();
-        window.close();
+        document.getElementById('force-close').innerHTML = "User not authenticated, forcefully closing..."
+        interval = setInterval(() => {
+            var window = remote.getCurrentWindow();
+            window.close();
+        }, 1500);
+    }else{
+        var adminStatus = false;
+
+        // console logging to check
+        console.log("user:" + remote.getGlobal('userBattleTag'));
+
+        //SQL query to admin table
+        var conn = new sql.ConnectionPool(keys.SQLConfig);
+
+        conn.connect().then(function (){
+            
+            var req = new sql.Request(conn);
+            queryBattleTag = myBattleTag;
+            var queryString = "SELECT * FROM admin_table WHERE BattleTag = @queryBattleTag;"; 
+            req.input('queryBattleTag', queryBattleTag).query(queryString)
+                .then(function (recordset) {
+                    if(recordset.rowsAffected == 1){ 
+                        console.log("is admin");
+                        adminStatus = true;
+                    }
+                    conn.close();
+
+                    var window = remote.getCurrentWindow();
+                    if(adminStatus){
+                        // open page_admin
+                        main.openWindow('page_admin');
+                        window.close();
+                    }else{
+                        main.openWindow('page');
+                        window.close();
+                    } 
+                }).catch(function (err) {
+                    // failure to query
+                    console.log(err);
+                    conn.close();
+                });
+        }).catch(function(err){
+            // failure to connect
+            console.log(err);
+        });
     }
-
-    var adminStatus = false;
-
-    // console logging to check
-    console.log("user:" + remote.getGlobal('userBattleTag'));
-
-    //SQL query to admin table
-    var conn = new sql.ConnectionPool(keys.SQLConfig);
-
-    conn.connect().then(function (){
-        
-        var req = new sql.Request(conn);
-        queryBattleTag = myBattleTag;
-        var queryString = "SELECT * FROM admin_table WHERE BattleTag = @queryBattleTag;"; 
-        
-        req.input('queryBattleTag', queryBattleTag).query(queryString)
-            .then(function (recordset) {
-                if(recordset.rowsAffected == 1){ 
-                    console.log("is admin");
-                    adminStatus = true;
-                }
-                conn.close();
-
-                var window = remote.getCurrentWindow();
-                if(adminStatus){
-                    // open page_admin
-                    main.openWindow('page_admin');
-                    window.close();
-                }else{
-                    main.openWindow('page');
-                    window.close();
-                } 
-            }).catch(function (err) {
-                // failure to query
-                console.log(err);
-                conn.close();
-            });
-    }).catch(function(err){
-        // failure to connect
-        console.log(err);
-    });
-
 })

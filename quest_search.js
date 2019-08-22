@@ -69,7 +69,7 @@ async function AddToQueue(userBattleTag, trustFactor) {
         if (result) {
             queryString = "UPDATE match_table\
                             SET Player2 = @userBattleTag\
-                            SET Player2_Trust = @trustFactor\
+                            , Player2_Trust = @trustFactor\
                             WHERE Player2 IS NULL;";
             console.log("Found a slot to place myself in!");
         } else {
