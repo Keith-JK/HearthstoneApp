@@ -29,10 +29,10 @@ function createWindow(){
         slashes: true
     }));
 
-    //Menu.setApplicationMenu(null);
+    Menu.setApplicationMenu(null);
 
     // Dev Tools
-    mainWin.webContents.openDevTools();
+    // mainWin.webContents.openDevTools();
 
     // Emitted when the window closed
     mainWin.on('closed', () => {
@@ -52,8 +52,8 @@ function createLoginWindow(){
 
     loginWin.loadURL('http://localhost:3000/');
 
-    loginWin.webContents.openDevTools();
-    //Menu.setApplicationMenu(null);
+    // loginWin.webContents.openDevTools();
+    Menu.setApplicationMenu(null);
 
     loginWin.on('closed', () =>{
         loginWin = null;
@@ -135,6 +135,6 @@ exports.openWindow = (filename) => {
             nodeIntegration:true
         } 
     });
-    win.webContents.openDevTools();
+    //win.webContents.openDevTools();
     win.loadURL(`file://${__dirname}/` + filename + `.html`);
 }
