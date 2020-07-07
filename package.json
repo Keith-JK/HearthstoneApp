@@ -21,7 +21,7 @@
     "tedious": "^6.2.0"
   },
   "devDependencies": {
-    "electron": "^6.0.0",
+    "electron": "^7.2.4",
     "electron-packager": "^14.0.4"
   }
 }
